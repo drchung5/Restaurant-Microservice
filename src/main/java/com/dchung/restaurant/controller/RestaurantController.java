@@ -26,6 +26,7 @@ public class RestaurantController {
 
   @GetMapping(value= "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Restaurant> getRestaurant(@PathVariable("id") Long id) {
+    System.out.println("Restaurant Service: getRestaurant("+id+")");
     Optional<Restaurant> restaurantWrapper = restaurantRepository.findById(id);
     if(!restaurantWrapper.isPresent()) {
       return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -35,6 +36,7 @@ public class RestaurantController {
 
   @GetMapping(produces= MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity getAllRestaurants() {
+    System.out.println("Restaurant Service: getAllRestaurants()");
     Iterable<Restaurant> restaurants = restaurantRepository.findAll();
     if( Iterables.size(restaurants) == 0 ) {
       return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -45,6 +47,8 @@ public class RestaurantController {
   @GetMapping(value="/best", produces= MediaType.APPLICATION_JSON_VALUE)
   public BestRestaurant getBestRestaurantByCuisine(@RequestParam("cuisine_id") Long id) {
 
+    System.out.println("Restaurant Service: getBestRestaurantByCuisine("+id+")");
+
     RestTemplate restTemplate = new RestTemplate();
 
     List<Restaurant> restaurants = restaurantRepository.findByRestaurantsByCuisine(id);
@@ -52,9 +56,6 @@ public class RestaurantController {
     BestRestaurant bestRestaurant = new BestRestaurant();
 
     for( Restaurant restaurant : restaurants ) {
-
-      System.err.println("********************");
-
       ResponseEntity<Review[]> response = null;
       try {
         response =
@@ -62,7 +63,7 @@ public class RestaurantController {
                 "http://localhost:9002/reviews/restaurant/" + restaurant.getRestaurant_id(),
                 Review[].class);
       } catch (Exception e) {
-        break;
+        continue;
       }
 
       Review[] reviews = response.getBody();
@@ -71,7 +72,6 @@ public class RestaurantController {
 
       for( Review review : reviews ) {
         sumRating += review.getRating();
-        System.out.println( restaurant.getName() + "  rating : " + review.getRating() );
       }
 
       float avgRating = 0;
@@ -93,6 +93,7 @@ public class RestaurantController {
   public ResponseEntity<Void> insertRestaurant(
       @RequestBody Restaurant restaurant,
       UriComponentsBuilder builder) {
+    System.out.println("Restaurant Service: insertRestaurant("+restaurant.getName()+")");
     Restaurant r = restaurantRepository.save(restaurant);
     HttpHeaders headers = new HttpHeaders();
     headers.setLocation(builder.path("/restaurants/{id}").
