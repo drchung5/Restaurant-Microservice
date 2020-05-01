@@ -62,8 +62,9 @@ public class RestaurantController {
     String reviewUrl =
         "http://" +
             env.getProperty("reviews.host") +
-            env.getProperty("review.port") +
-            "/reviews/restauant/";
+            ":" +
+            env.getProperty("reviews.port") +
+            "/reviews/restaurant/";
 
     for( Restaurant restaurant : restaurants ) {
       ResponseEntity<Review[]> response = null;
