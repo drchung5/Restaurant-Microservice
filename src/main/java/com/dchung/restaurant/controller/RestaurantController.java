@@ -6,6 +6,7 @@ import com.dchung.restaurant.data.Review;
 import com.dchung.restaurant.data.repo.RestaurantRepository;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,9 @@ public class RestaurantController {
 
   @Autowired
   private RestaurantRepository restaurantRepository;
+
+  @Autowired
+  Environment env;
 
   @GetMapping(value= "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Restaurant> getRestaurant(@PathVariable("id") Long id) {
@@ -55,12 +59,18 @@ public class RestaurantController {
 
     BestRestaurant bestRestaurant = new BestRestaurant();
 
+    String reviewUrl =
+        "http://" +
+            env.getProperty("reviews.host") +
+            env.getProperty("review.port") +
+            "/reviews/restauant/";
+
     for( Restaurant restaurant : restaurants ) {
       ResponseEntity<Review[]> response = null;
       try {
         response =
             restTemplate.getForEntity(
-                "http://localhost:9002/reviews/restaurant/" + restaurant.getRestaurant_id(),
+                reviewUrl + restaurant.getRestaurant_id(),
                 Review[].class);
       } catch (Exception e) {
         continue;
