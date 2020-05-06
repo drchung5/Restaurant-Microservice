@@ -4,9 +4,4 @@ insert into restaurant (name, cuisine_id) values ('La Tasca',3);
 insert into restaurant (name, cuisine_id) values ('Flame',1);
 insert into restaurant (name, cuisine_id) values ('Blowfish',2);
 insert into restaurant (name, cuisine_id) values ('Plaza de Toros',3);
-insert into restaurant (name, cuisine_id) values ('Favela',1);
-insert into restaurant (name, cuisine_id) values ('Hana Sushi',2);
-insert into restaurant (name, cuisine_id) values ('Streets of Madrid',3);
-insert into restaurant (name, cuisine_id) values ('Impanema',1);
-insert into restaurant (name, cuisine_id) values ('Sushi Ya!',2);
-insert into restaurant (name, cuisine_id) values ('La Bodega',3);
+
