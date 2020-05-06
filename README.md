@@ -15,3 +15,9 @@ curl --location --request POST 'http://localhost:8000/restaurants' \
 
 ### Get best restaurant by cuisine
 curl --location --request GET 'localhost:8000/restaurants/best?cuisine_id=1'
+
+### Access Swagger UI (in a browser)
+http://localhost:8000/swagger-ui.html
+
+### Access Database (h2) Console (in a browser)
+http://localhost:8000/h2-console
