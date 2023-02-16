@@ -23,7 +23,7 @@ public class Restaurant {
   private String name;
 
   @NotNull
-  private Long cuisine_id;
+  private String cuisine;
 
 
 }

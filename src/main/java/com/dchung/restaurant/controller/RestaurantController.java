@@ -1,8 +1,6 @@
 package com.dchung.restaurant.controller;
 
-import com.dchung.restaurant.data.BestRestaurant;
 import com.dchung.restaurant.data.Restaurant;
-import com.dchung.restaurant.data.Review;
 import com.dchung.restaurant.data.repo.RestaurantRepository;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -38,6 +34,7 @@ public class RestaurantController {
     return new ResponseEntity(restaurantWrapper.get(),HttpStatus.OK);
   }
 
+
   @GetMapping(produces= MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity getAllRestaurants() {
     System.out.println("Restaurant Service: getAllRestaurants()");
@@ -48,56 +45,14 @@ public class RestaurantController {
     return new ResponseEntity(restaurants,HttpStatus.OK);
   }
 
-  @GetMapping(value="/best", produces= MediaType.APPLICATION_JSON_VALUE)
-  public BestRestaurant getBestRestaurantByCuisine(@RequestParam("cuisine_id") Long id) {
-
-    System.out.println("Restaurant Service: getBestRestaurantByCuisine("+id+")");
-
-    RestTemplate restTemplate = new RestTemplate();
-
-    List<Restaurant> restaurants = restaurantRepository.findByRestaurantsByCuisine(id);
-
-    BestRestaurant bestRestaurant = new BestRestaurant();
-
-    String reviewUrl =
-        "http://" +
-            env.getProperty("reviews.host") +
-            ":" +
-            env.getProperty("reviews.port") +
-            "/reviews/restaurant/";
-
-    for( Restaurant restaurant : restaurants ) {
-      ResponseEntity<Review[]> response = null;
-      try {
-        response =
-            restTemplate.getForEntity(
-                reviewUrl + restaurant.getRestaurant_id(),
-                Review[].class);
-      } catch (Exception e) {
-        continue;
-      }
-
-      Review[] reviews = response.getBody();
-
-      int sumRating = 0;
-
-      for( Review review : reviews ) {
-        sumRating += review.getRating();
-      }
-
-      float avgRating = 0;
-      if( sumRating > 0 ) {
-        avgRating = (float)sumRating / (float)reviews.length;
-      }
-
-      if( avgRating > bestRestaurant.getAvgReview() ) {
-        bestRestaurant.setAvgReview( avgRating );
-        bestRestaurant.setRestaurant_id( restaurant.getRestaurant_id() );
-      }
-
+  @GetMapping(value= "/cuisines/{cuisine}",produces= MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity getRestaurantsByCuisine(@PathVariable("cuisine") String cuisine) {
+    System.out.println("Restaurant Service: getRestaurantsByCuisine("+cuisine+")");
+    Iterable<Restaurant> restaurants = restaurantRepository.findByRestaurantsByCuisine(cuisine);
+    if( Iterables.size(restaurants) == 0 ) {
+      return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
-
-    return bestRestaurant;
+    return new ResponseEntity(restaurants,HttpStatus.OK);
   }
 
   @PostMapping(consumes = "application/json")
@@ -110,6 +65,12 @@ public class RestaurantController {
     headers.setLocation(builder.path("/restaurants/{id}").
         buildAndExpand(r.getRestaurant_id()).toUri());
     return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+  }
+
+  @DeleteMapping("/{id}")
+  void deleteRestaurant(@PathVariable Long id) {
+    System.out.println("Restaurant Service: deleteRestaurant("+id+")");
+    restaurantRepository.deleteById(id);
   }
 
 }

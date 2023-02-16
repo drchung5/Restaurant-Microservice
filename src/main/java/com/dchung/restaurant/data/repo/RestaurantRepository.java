@@ -10,8 +10,8 @@ import java.util.List;
 public interface RestaurantRepository
     extends CrudRepository<Restaurant, Long> {
 
-  @Query("select r from Restaurant r where r.cuisine_id=:cuisine_id")
-  public List<Restaurant> findByRestaurantsByCuisine(@Param("cuisine_id")Long cuisine_id);
+  @Query("select r from Restaurant r where r.cuisine=:cuisine")
+  public List<Restaurant> findByRestaurantsByCuisine(@Param("cuisine")String cuisine);
 
 }
 
